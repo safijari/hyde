@@ -1,0 +1,37 @@
+---
+title: I used ROS on Windows (and I liked it?)
+layout: post
+---
+
+**tl;dr** There is a really nice effort called `[ros_cygwin](https://github.com/codenotes/ros_cygwin)` that allows Windows users to have roughly the same experience using ROS as Ubuntu users would. It's nice, and makes a lot of sense in the _personal computer interfacing with a ROS enabled robot_ context. 
+
+My first exposure to ROS was in 2014 as I started doing some graduate work with Dr. Sean Brennan at the [Intelligent Vehicles and Systems Group (IVSG)](http://mne.psu.edu/toboldlygo/). Being a primarily Mechanical Engineering lab, many of the excellent students working at the IVSG struggled when the lab started to use ROS as both middleware and ecosystem. This was perhaps in part due to lack of exposure to Linux and in part due to the fact that most Mechanical Engineers learn programming using only MATLAB during undergrad. While many were able to make the transition to Python in order to use the `rospy` client library, the need to use Linux often stayed a sticking point. Both the students and the professors wanted to be able to use ROS on their personal machines which in almost all cases ran Windows or Mac. Using ROS on Windows is apparently difficult and severly outdated (the instructions [here](http://wiki.ros.org/Installation/Windows) only go up to Hydro, and not everything works). Furthermore there is a disconnect between those willing to develop for ROS and those wanting to use ROS on Windows as alluded to [here](http://files.yujinrobot.com/win_ros/presentations/roscon_2012/win_ros.pdf). Inevitably during some discussions on the subject, the question of stability as well as that of annoying lengthy updates comes up. Imagine your robot hitting the blue screen of death or restarting for a _quick 2 hour update _in the middle of operation... **shudders**. That said, I still think there is a lot of value in using ROS on Windows. 
+
+## Making the case for ROS on Windows
+
+These above issues aside, I still think there is value in using ROS on Windows dev machines. It can simplify the adoption of ROS for new users that primarily use Windows. While the overall workflow isn't much simpler (e.g. still need to use the terminal), the overall experience for the newbie is still better because they get to remain in a familiar environment. Learning ROS is difficult enough as it is, adding an additional layer of "use this weird OS as well" can be a bit overkill. There is also the matter of logistics. Some times it may not be possible (or optimal) for someone to put two operating systems on a computer. One of my recent mentees, an undergrad at the IVSG, spent a good month trying various combinations of virtual machines that would work well on his Razer laptop in order to avoid horrors of trying to dual boot his relatively new laptop with Linux. It is basically impossible for me to do the same on my Surface 3 (non pro). Moreover, you can have users that only occassionaly interact with a ROS enabled robot purely for monitoring, controlling on a high level, or data collection, and would rather not put another OS on their laptops. This category can include administrators (read: robotics group professor out of touch with the times) or researchers from another field. 
+
+## But you said using ROS on Windows was difficult...
+
+Perhaps you, astute reader, did not read the **tl;dr **above (is that a **tl;dr the tl;dr **...?). I recently stumbled on this project called [ros_cygwin](https://github.com/codenotes/ros_cygwin) almost by accident. For the unintiated, [Cygwin](https://www.cygwin.com) is an approximation of a Linux distribution that runs natively in Windows. It is often possible to take a piece of Linux software and compile it to run under Cygwin. It can be a tricky process, but the authors of [ros_cygwin](https://github.com/codenotes/ros_cygwin) have done all the heavy lifting for us (yaaay). Just head on over to their [release page](https://github.com/codenotes/ros_cygwin/releases) and grab the latest binaries for Indigo or Jade. You should only need to run the installer and click `Next` until it turns into `Finsih`. 
+
+## Okay, I installed it. Now what?
+
+You will need to run a Cygwin terminal from the install folder in order to start using ROS. Note that these will behave much the same way that terminals in Ubuntu would: 
+
+  * Every terminal will start with the same set of environment variables with the assumption of a local ROS master and a blank ROS_IP environment variable.
+  * You can simply launch one Cygwin terminal and run `roscore &`, followed by `rostopic pub /chatter std_msgs/String "ohai" -r 10`, then launch another Cygwin terminal window and run `rostopic echo /chatter` and there you have it, the standard ROS Pub Sub test, working in Windows! Note that there may be delays in this process that don't come up in Linux, I'm not quite sure why that is.
+  * All the `rqt_` tools work as expected. Windows come up, controls work, rviz rendering performance seems good... not much more to say about that.
+Note that additional ROS packages will need to be installed from source, since none of them would be in the Cygwin repositories. Follow the typical guides for making a catkin workspace and installing packages from source and you should be fine. 
+
+##  Some things to watch out for
+
+## Interfacing with another ROS master over the network requires the same gymnastics that you would do in the Linux world. Make sure to set the `ROS_MASTER_URI` environment variable appropriately. Note that Cygwin can inherit environment variables from Windows so setting it there can work as well. The biggest problem is going to be hostname resolution. If you have a local DNS then you should be in the clear. If not, do the following two things: 
+
+  * Set the `ROS_IP` environment variable. This should be set to the Windows machine's IP and allows you to send information to other ROS computers without having to modify their `/etc/hosts` file.  
+  * Add a line to your `C:\Windows\System32\Drivers\etc\hosts` file that looks like `ros_robot_ip ros_robot_hostname`, one line per other ROS robot/computer. Actualy changing this can be a bit tricky. Either open it inside a text editor running in admin mode, or save it somewhere else (e.g. Desktop), remove any additional extension that may have been added, and then drag it back to its original folder, overwriting the previous file. This lets you receive information from ROS nodes on any computer that you've added to the host file.
+I encountered a weird bug in Windows 10 that can set a read-only flag on folders sitting in a root directory (e.g. C: ). In my experience, this did not inhibit any ROS related function but did keep me from using VI/VIM. You an try following some suggestions [here](http://answers.microsoft.com/en-us/windows/forum/windows_10-files/document-folders-marked-read-only-after-upgrade-to/4f00d3fe-82b0-4e6d-a92a-f81751aa6f51?auth=1) but nothing fixed the problem for me, your mileage may vary. 
+
+## Parting thoughts
+
+This morning at work we were testing some Robotic System Toolbox funtionality on real robots with Matlab running primarily on Windows. After I nagged them to install `ros_cygwin`, some of my colleagues found it immensely helpful to be able to open an RVIZ window showing laser scans from the robot right alongside a Matlab window. This is exactly the kind of use case that this awesome package is best suited for. I hope this post can give some clarity to those seeking such a solution.
