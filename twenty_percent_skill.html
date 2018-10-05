@@ -1,0 +1,38 @@
+<html>
+
+   <script> 
+    var abc = 'abcdefghijklmnopqrstuvwxyz';
+    function onload() {
+    }
+    function mychange() {
+        var val = document.querySelector('#leinput').value;
+        var out = document.querySelector('#compuation');
+        output = "";
+        let sum = 0;
+        for (let i = 0; i < val.length; i++) {
+            if (output.length > 0) {output += " + "};
+            let letter = val[i];
+            let lowletter = letter.toLowerCase();
+            let idx = abc.indexOf(lowletter);
+            if (idx >= 0) {
+                output += (idx + 1);
+                sum += (idx + 1);
+            }
+        }
+
+        if (output.length > 0) {
+            output += " = " + sum;
+        }
+
+        out.innerHTML = output;
+    }
+   </script>
+
+   <body>
+    <input id="leinput" oninput="mychange()" />
+    <div>
+        <span id="compuation"></span>
+    </div>
+   </body>
+
+</html>

@@ -3,28 +3,8 @@ layout: page
 title: About
 ---
 
-<p class="message">
-  Hey there! This page is included as an example. Feel free to customize it for your own use upon downloading. Carry on!
-</p>
+Professionally, I am currently a member of the rather ill defined group of people known as <strong><em>roboticist</em></strong><em>s</em>. I am currently interning at <a href="http://www.mathworks.com/">Mathworks</a> working with their <a href="http://www.mathworks.com/products/robotics/">Robotics System Toolbox</a> team. Prior to this I interned at a startup called <strong><a href="http://www.simberobotics.com/" target="_blank">Simbe Robotics</a> </strong>where I was hired for my experience with point cloud processing as well as my extensive knowledge of <a href="http://www.ros.org/">Robot Operating System (<strong>ROS</strong>)</a>. I'm currently a senior computer vision engineer there.
 
-In the novel, *The Strange Case of Dr. Jeykll and Mr. Hyde*, Mr. Poole is Dr. Jekyll's virtuous and loyal butler. Similarly, Poole is an upstanding and effective butler that helps you build Jekyll themes. It's made by [@mdo](https://twitter.com/mdo).
+My education consisted of an undergraduate degree in Mechanical and Nuclear Engineering from Idaho State University and a Masters in Mechanical Engineering from Penn State University. Earlier on my interest was primarily in thermal hydraulics for nuclear power plant but I slowly transitioned into <a href="https://www.youtube.com/watch?v=UUSpz_WdiOI">Mechatronics</a> by the time I started grad school at Penn State. I did my graduate work with Drs. <a href="http://www.mne.psu.edu/department/directory-detail.aspx?LandOn=Gen&amp;q=hkf2">Hosam Fathy</a> and <a href="http://www.mne.psu.edu/department/directory-detail.aspx?LandOn=Gen&amp;q=snb10">Sean Brennan</a> initially with a focus on control and estiamtion in electric and hybrid electric vehicle battery packs. Parallel to this work I slowly learned about robotics through affiliation with <a href="http://mne.psu.edu/toboldlygo/">Dr. Brennan's Lab</a>, an effort that culminated in a one year long project with Volvo: a technology demonstration for <a href="https://www.youtube.com/watch?v=fNIV6Dcj29E">trash collecting robots</a>. <br/><br/>
 
-There are currently two themes built on Poole:
-
-* [Hyde](http://hyde.getpoole.com)
-* [Lanyon](http://lanyon.getpoole.com)
-
-Learn more and contribute on [GitHub](https://github.com/poole).
-
-## Setup
-
-Some fun facts about the setup of this project include:
-
-* Built for [Jekyll](http://jekyllrb.com)
-* Developed on GitHub and hosted for free on [GitHub Pages](https://pages.github.com)
-* Coded with [Sublime Text 2](http://sublimetext.com), an amazing code editor
-* Designed and developed while listening to music like [Blood Bros Trilogy](https://soundcloud.com/maddecent/sets/blood-bros-series)
-
-Have questions or suggestions? Feel free to [open an issue on GitHub](https://github.com/poole/issues/new) or [ask me on Twitter](https://twitter.com/mdo).
-
-Thanks for reading!
+I write a blog about open source robotics software (among other things) called the <a href="jarisafi.wordpress.com">The Kidnapped Robot</a>. Please drop by, you might find something interesting to read :).
