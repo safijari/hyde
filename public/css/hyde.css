@@ -32,16 +32,16 @@
  */
 
 html {
-  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-family: "Merriweather", Helvetica, Arial, serif;
 }
 @media (min-width: 48em) {
   html {
-    font-size: 16px;
+    font-size: 20px;
   }
 }
 @media (min-width: 58em) {
   html {
-    font-size: 20px;
+    font-size: 23px;
   }
 }
 
@@ -124,6 +124,7 @@ a.sidebar-nav-item:focus {
 .content {
   padding-top:    4rem;
   padding-bottom: 4rem;
+  background-color: #FFFAF6;
 }
 
 @media (min-width: 48em) {
@@ -131,6 +132,7 @@ a.sidebar-nav-item:focus {
     max-width: 38rem;
     margin-left: 20rem;
     margin-right: 2rem;
+    background-color: #FFFAF6;
   }
 }
 
