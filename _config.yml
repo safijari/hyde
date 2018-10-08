@@ -8,7 +8,7 @@ permalink:        pretty
 
 # Setup
 title:            The Kidnapped Robot
-tagline:          'Attempting Relocalization'
+tagline:          Attempting Relocalization
 description:      'Ramblings of a mechanical engineer turned roboticist turned computer vision expert turned machine learning errr ... guy.'
 url:              https://safijari.github.io/
 baseurl:          /

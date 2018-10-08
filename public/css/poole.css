@@ -158,7 +158,7 @@ code {
   padding: .25em .5em;
   font-size: 100%;
   color: #bf616a;
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9; */
   border-radius: 3px;
 }
 pre {
@@ -261,7 +261,7 @@ tbody tr:nth-child(odd) th {
  */
 
 .lead {
-  font-size: 1.25rem;
+  font-size: 1.0rem;
   font-weight: 300;
 }
 
