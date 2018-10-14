@@ -9,7 +9,7 @@ I had to dig through the documentation to find, so I'm hoping it can help out a 
 
 ## Some background on OpenKarto
 As the _about_ portion of this website shows, I'm at least part roboticist despite most of my 
-time at [Simbe Robotics](www.simberobotics.com) being spent on computer vision and machine learning. As such I've had a few tussles with 
+time at [Simbe Robotics](http://www.simberobotics.com) being spent on computer vision and machine learning. As such I've had a few tussles with 
 algorithms to map an environment using laser scanner data. Most recently I encountered 
 (and quite enjoyed working with) [`OpenKarto`](https://github.com/ros-perception/open_karto) which 
 was originally developed at SRI and currently maintained by [OSRF](https://www.openrobotics.org/).
@@ -23,7 +23,7 @@ process some logged laser scans and improve the overall accuracy of our data pip
 3. `Boost.Python` allowing what always appears to be a [simple way to interface](https://www.boost.org/doc/libs/1_68_0/libs/python/doc/html/index.html) `python` with `C++` (if you can get it to work...)
 4. and `pybind11` allowing for a very `Boost.Python` like interface but no `boost` requirement ... also it's header only!!!
 
-Number 4 was brand new to me. I had tried (and mostly struck out, repeatedly) with all the other options. So I gave it a try. I started with the excellent [`python_example`](https://github.com/pybind/python_example) since that allows me to build/deploy with the `setup.py` file.
+Number 4 was brand new to me. I had tried (and mostly struck out, repeatedly) with all the other options. So I gave it a try. I started with the excellent [python example](https://github.com/pybind/python_example) since that allows me to build/deploy with the `setup.py` file.
 
 ## Dealing with external dependencies
 This is the first thing I needed to do a bit of digging to find as the example does not tackle it.
@@ -60,7 +60,7 @@ as that is already searched.
 
 This file, that I called [`PythonInterface.cpp`](https://github.com/safijari/pyOpenKarto/blob/python-devel/src/PythonInterface.cpp), is the only addition I needed to make (other than the `setup.py`)
 to the base `open_karto` repo. To allow for more overall control, I abstracted the details of using
-the base api into a `MapperWrapper` class which takes care of things like setup and teardown
+the karto api into a `MapperWrapper` class which takes care of things like setup and teardown
 as well as reduce some general tedium. To expose this class, I needed to add the following code:
 
 {% highlight c++ %}
@@ -90,9 +90,9 @@ functions and classes to it.
 ### Exposing a class
 To expose a `C++` class, you need at least a minimum of
 
-```
-  py::class_<ClassName>(moduleObject, "ClassNameInPython");
-```
+{% highlight c++ %}
+py::class_<ClassName>(moduleObject, "ClassNameInPython");
+{% endhighlight %}
 
 In the above example the template argument to `py::class_` is `MapperWrapper`, the
 class I want to export. Note that I'm choosing to call it by the same name in python though
@@ -100,129 +100,130 @@ that certainly can be different.
 
 This by itself wouldn't be very useful without exposed fields/functions/properties/etc.
 To do this, you can chain methods at the end of that statement. Perhaps the first method
-we need to add would be an `init` so we can create this class on the python side. To do
-this you'll need to add
+we need to add would be an `init` so we can create this class on the python side.
 
 ### Constructors/Initializers
-
-```
-    .def(py::init<arg1_type, arg2_type, ...>())
-```
-
+Just chain the following to your class defintions:
+{% highlight c++ %}
+.def(py::init<arg1_type, arg2_type, ...>())
+{% endhighlight %}
 where the template arguments can number in 0, as the case may be. Note that this exposes the
 `C++` class's constructor. In some cases you might want to expose a factory method instead.
-This is very straight forward and the example below from another class in `karto` should make
+This is also very straight forward and the example below from another class in karto should make
 it clear:
 
-```
-  py::class_<karto::LaserRangeFinder>(m, "LaserRangeFinder")
-    .def(py::init(&karto::LaserRangeFinder::CreateLaserRangeFinder));
-```
+{% highlight c++ %}
+py::class_<karto::LaserRangeFinder>(m, "LaserRangeFinder")
+  .def(py::init(&karto::LaserRangeFinder::CreateLaserRangeFinder));
+{% endhighlight %}
 
 Note that it's perfectly fine (as you'll soon see) to expose a class _without_ an initializer
-if the class is never intended to be instantiated on the python side. The `OccupancyGrid` class
+if the class is never intended to be instantiated on the `python` side. The `OccupancyGrid` class
 in `karto` is always created on the `C++` side so it has no initializer.
 
 ### Normal methods
-Exposing a method of the class is perhaps the most straight forward:
-```
+Exposing a normal method of the class is perhaps most straight forward:
+{% highlight c++ %}
   .def("python_func_name", &ClassName::MethodName);
-```
+{% endhighlight %}
 Note that there is no need to define arguments/their types as well as return types.
 `pybind11` will automatically take care of this. Note however that a returned `C++` type
 **must** be:
 
-a) translatable to python (true for most primitive types and stl containers) or
-b) a python type constructed on the `C++` side (e.g. `py::make_tuple(1234, "hello");`) or
-c) exposed to python.
+1. translatable to python (true for most primitive types and stl containers) or
+2. a python type constructed on the `C++` side (e.g. `py::make_tuple(1234, "hello");`) or
+3. exposed to python.
 
 If one of these three conditions is not met, trying to access the returned value in `python`
 will throw a runtime exception about the type not being known.
 
-Note that in some cases you might need to mess with the `return_value_policy` (more info [https://pybind11.readthedocs.io/en/stable/advanced/functions.html]). This is a topic I don't fully
-understand but at least in one case I needed to ensure that the python side does not take ownership of the object so I could avoid some double deletes:
+Note that in some cases you might need to mess with the `return_value_policy` (more info [here](https://pybind11.readthedocs.io/en/stable/advanced/functions.html)). This is a topic I don't fully
+understand but at least in one case I needed to ensure that the python side does not take ownership of the object so I could avoid some double deletes, and this was done by setting the return policy
+to `reference`.
 
-```
+{% highlight c++ %}
 .def("get_processed_scans", &MapperWrapper::GetProcessedScans, 
-     py::return_value_policy::reference)
-```
+   py::return_value_policy::reference)
+{% endhighlight %}
 
 ### Properties and public fields
-Now we get to on of my favorite things, mapping getters and setters to properties. There are
+Now we get to one of my favorite things, mapping getters and setters to properties. There are
 two ways to do this and the distinction is obvious.
 
-```
+{% highlight c++ %}
 .def_property("property_name", &ClassName::Getter, &ClassName::Setter)
-```
+{% endhighlight %}
 
 or
 
-```
+{% highlight c++ %}
 .def_property_readonly("property_name", &ClassName::Getter)
-```
+{% endhighlight %}
 
-Note that pybind11 has support for C++ lambdas for in case you're wanting to expose a field
+Note that pybind11 has support for C++ lambdas in case you're wanting to expose a field
 that doesn't already have a getter/setter, you can do something like this:
 
-```
+{% highlight c++ %}
 .def_property_readonly("property_name", [](const ClassName &a) {
     return a.field;
 })
-```
+{% endhighlight %}
 
 This can be done in all the presented cases, not just for properties. Finally, you can 
 expose a public field directly if you choose to
 
-```
+{% highlight c++ %}
 .def_readwrite("python_field_name", &ClassName::fieldName)
-```
+{% endhighlight %}
 
 ### Printing the object on the python side
-There is nothing worse than
+There are few things in `python` land worse than
 
-```
+{% highlight python %}
 In [42]: print(obj)
 Out[42]: <module.Confusion at 0x12345678AB>
-```
+{% endhighlight %}
 
 Thankfully you can simpley define a `__repr__` for your class on the `C++` side same
-as you would have on the `python` side. In `karto`'s case, 
-it was important to be able to print out the 2D pose class so I could keep my sanity.
+as you would have on the `python` side. In karto's case, 
+it was important to be able to print out the data in the 2D pose class so I could keep my sanity.
 Note that we are returning a `C++` string which gets automatically translated to a python
 string.
 
-```
+{% highlight c++ %}
 .def("__repr__", [](const karto::Pose2 &a) {
-    std::stringstream buffer;
-    buffer << "(x: " << a.GetX() << ", y: " << a.GetY() << ", heading: " << a.GetHeading() << ")\n";
-    return buffer.str();
-  })
-```
+  std::stringstream buffer;
+  buffer << "(x: " << a.GetX() << ", y: " << a.GetY() << ", heading: " << a.GetHeading() << ")\n";
+  return buffer.str();
+})
+{% endhighlight %}
 
 ### Normal functions
 This is the same as defining a method for the class except the `.def` is called on the module
 itself. As an example, I have a factory method for creating a concrete instance of a templated 
 class, and I can expose it like so:
-```
+
+{% highlight c++ %}
 m.def("create_custom_rangefinder", &CreateCustomRangeFinder);
-```
+{% endhighlight %}
 
 ### Enums
-Karto defines both types of laser range finders as well as states of each
-cell of a grid map as enums. Pybind11 allows this to be easily exposed:
+Karto defines the type of laser range finder used as well as states of each
+cell of a grid map as enums. To use these from the python side I needed to expose them
+like so:
 
-```
+{% highlight c++ %}
 py::enum_<karto::GridStates>(m, "GridStates")
   .value("Unknown", karto::GridStates::GridStates_Unknown)
   .value("Occupied", karto::GridStates::GridStates_Occupied)
   .value("Free", karto::GridStates::GridStates_Free);
-```
+{% endhighlight %}
 
-The above exposes `GridStates::GridStates_Unknown` as `GridStates.Unknown` 
+The above maps `GridStates::GridStates_Unknown` to `GridStates.Unknown` 
 on the python side.
 
 ## Building, installing, and packaging
-Building the package is straight forward, just run 
+You can build the package using the `setup.py` file 
 ```
 python setup.py build
 ```
@@ -235,7 +236,7 @@ might be to install the pacakge in dev mode in your `python` environment. Do thi
 pip install -e .
 ```
 The additional `-e` does an "editable" install. All that means is that instead of your files
-getting copied somewhere in a `site-packages` directory, `pip` has instead made symlinks to them.
+getting copied somewhere in a `site-packages` directory, `pip` has made symlinks to them.
 This only has to be done once and afterwards the `build` command can be used to reflect any changes
 on the `C++` side. Note that you can omit the editable flag but that would cause a proper install
 of the package, and no changes will be reflected in your python environment until you do the install again.
@@ -246,19 +247,20 @@ Packaging is a bit more nuanced given this is not a pure python module. I'll onl
 
 2. `python setup.py bdist_wheel`: This requires that you have the `wheel` package installed. It's a somewhat better option than the last one since no compilation will be required on the user's part. The command will create a _wheel_ which is a _binary_ `python` package (it's a zip file that is allowed to contain `.so` and other binary files). They will, however, need either the `dev` or *normal* (if any) version of your `C++` code's dependencies and version clashes are entirely possible. This option is perfect when your `C++` code has no external dependencies but that is typically not going to be the case.
 
-3. [`auditwheel`](https://github.com/pypa/auditwheel): This tool, sanctioned by the Python packaging authority, uses another nifty little tool called [`patchelf`](https://nixos.org/patchelf.html) to find all the `.so` files that your module needs to be linked against and puts them inside an existing wheel (which you can make using the previous method). This is a much better option but depending on where you build the wheel and where you run the `auditwheel` command, it can have bad effects when deploying your package to a different platform (e.g. if I run `auditwheel` on Ubuntu 18.04 and then try to run it on `16.04`, it straight up won't work).
+3. [`auditwheel`](https://github.com/pypa/auditwheel): This tool, sanctioned by the Python packaging authority, uses another nifty little tool called [`patchelf`](https://nixos.org/patchelf.html) to find all the `.so` files that your module needs to be linked against and puts them inside an existing wheel (which you can make using the previous method). This is a much better option but depending on where you build the wheel and where you run the `auditwheel` command, it can have bad effects when deploying your package to a different platform (e.g. if I run `auditwheel` on Ubuntu 18.04 and then try to run the resulting package on 16.04, it straight up will refuse to import because of conflicting `glibc`).
 
 4. `auditwheel` + [`manylinux`](https://github.com/pypa/manylinux): [PEP 513](https://www.python.org/dev/peps/pep-0513/) defines how to create maximally compatible and self contained python wheels, and `manylinux` is a build environment (they supply `docker` containers!). If you install all your dependencies in a `manylinux` `docker` container and then build and patch the wheel inside it, it will most likely run on any linux version from after 2007. This is much easier said than done, in fact it can be downright horrifying for some dependencies. I will spend another article describing this process for karto.
 
 ## The Final Product and Conclusion
 
 The original `open_karto` repo has a sample program that creates two circular laser scans processes
-them, below I show `python` code doing the same thing:
+them, below I show `python` code doing the same thing. Note that the `process_scan` method expects a `vector<float>`
+on the `C++` side but I can pass a normal `python` list. All the conversions are taken care of.
 
 ![example](/images/pyOpenkarto_example.png)
 
 All in all this was a great success for me. Not only does it allow me to easily integrate karto with my python codebase, 
-it also allows me to finetune the parameters and experiment in an ipython notebook, which is a huge boon to productivity.
+it also allows me to finetune the parameters and experiment in a notebook, which is a huge boon to productivity.
 
 I was pleasently surprised by how straight forward it was to get this all done with `pybind11`. It's a fantastic effort
 and I will be using it a lot more (I've already wrapped two other codebases for work). I hope lessons learned during my 
