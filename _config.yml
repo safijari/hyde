@@ -12,6 +12,7 @@ tagline:          Attempting Relocalization
 description:      'Ramblings of a mechanical engineer turned roboticist turned computer vision expert turned machine learning errr ... guy.'
 url:              https://safijari.github.io/
 baseurl:          /
+relurl:          "'/' | relative_url"
 
 author:
   name:           'Jariullah Safi'
