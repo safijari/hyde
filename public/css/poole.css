@@ -153,6 +153,7 @@ abbr[title] {
 code,
 pre {
   font-family: "Ubuntu Mono", Menlo, Monaco, "Courier New", monospace;
+  white-space: pre; overflow: auto;
 }
 code {
   padding: .25em .5em;
@@ -165,8 +166,8 @@ pre {
   display: block;
   margin-top: 0;
   margin-bottom: 1rem;
-  padding: 1rem;
-  font-size: 0.9rem;
+  padding: 0rem;
+  font-size: 0.8rem;
   line-height: 1.4;
   white-space: pre;
   white-space: pre-wrap;
